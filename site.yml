@@ -1,0 +1,49 @@
+---
+- name: Deploy City Care Hospital - From Scratch
+  hosts: webservers
+  become: true
+  vars:
+    web_root: /var/www/html
+    app_dir: "{{ playbook_dir }}"
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+    - name: Ensure Nginx running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+    - name: Copy index.html
+      copy:
+        src: "{{ app_dir }}/index.html"
+        dest: "{{ web_root }}/index.html"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+    - name: Copy style.css
+      copy:
+        src: "{{ app_dir }}/style.css"
+        dest: "{{ web_root }}/style.css"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+    - name: Copy app.js
+      copy:
+        src: "{{ app_dir }}/app.js"
+        dest: "{{ web_root }}/app.js"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
+    - name: Success
+      debug:
+        msg: "✅ City Care Hospital Deployed! Visit http://localhost"
